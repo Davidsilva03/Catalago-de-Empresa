@@ -138,7 +138,7 @@
 
     <!-- LOGO -->
     <div class="logo-container">
-      <img src="logo.png" alt="Logo da Empresa" class="logo">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABaAAAAGoCAYAAABYFgffAA..." alt="Logo da Igreja Itaquera Church" class="logo">
     </div>
 
     <h1>Catálogo de Empresas</h1>
@@ -200,7 +200,6 @@
   </div>
 
   <script>
-    // Carrega as empresas salvas no localStorage ou inicia vazio
     let empresas = JSON.parse(localStorage.getItem('empresas')) || [];
 
     function salvarEmpresas() {
@@ -265,7 +264,6 @@
       }
     });
 
-    // Renderiza empresas ao carregar a página
     renderizarEmpresas();
   </script>
 </body>
