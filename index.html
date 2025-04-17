@@ -1,26 +1,24 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Catálogo de Empresas</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
       background-color: #f0f2f5;
-      padding: 20px;
     }
 
     .container {
       max-width: 1000px;
-      margin: auto;
+      margin: 40px auto;
       background-color: #fff;
       padding: 30px;
       border-radius: 12px;
@@ -30,10 +28,6 @@
     .logo-container {
       text-align: center;
       margin-bottom: 30px;
-    }
-
-    .logo-container img {
-      max-width: 200px;
     }
 
     h1, h2 {
@@ -48,44 +42,34 @@
 
     label {
       font-weight: 600;
-      display: block;
       margin-bottom: 6px;
+      display: block;
+      color: #333;
     }
 
     input, select {
       width: 100%;
       padding: 10px;
-      border-radius: 8px;
       border: 1px solid #ccc;
-      font-size: 15px;
-    }
-
-    button[type="submit"], .btn-pdf {
-      background-color: #2ecc71;
-      color: white;
-      padding: 12px 20px;
-      border: none;
       border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      margin-top: 10px;
-    }
-
-    button[type="submit"]:hover, .btn-pdf:hover {
-      background-color: #27ae60;
+      font-size: 15px;
+      background-color: white;
     }
 
     .empresa {
       display: flex;
-      flex-direction: row;
       align-items: center;
       background-color: #fafafa;
       padding: 20px;
       border-radius: 10px;
       margin-bottom: 20px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease;
       flex-wrap: wrap;
+    }
+
+    .empresa:hover {
+      transform: scale(1.01);
     }
 
     .empresa-logo {
@@ -105,11 +89,35 @@
     .empresa-nome {
       font-weight: 600;
       font-size: 18px;
+      margin-bottom: 5px;
     }
 
     .empresa-telefone, .empresa-segmento {
-      font-size: 14px;
       color: #555;
+      font-size: 14px;
+    }
+
+    .form-cadastro {
+      margin-top: 50px;
+      background-color: #f9f9f9;
+      padding: 30px;
+      border-radius: 12px;
+    }
+
+    button[type="submit"], .btn-pdf {
+      background-color: #2ecc71;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 10px;
+    }
+
+    button[type="submit"]:hover, .btn-pdf:hover {
+      background-color: #27ae60;
     }
 
     @media (max-width: 600px) {
@@ -117,6 +125,7 @@
         flex-direction: column;
         align-items: flex-start;
       }
+
       .empresa-logo {
         margin-bottom: 10px;
       }
@@ -126,11 +135,12 @@
 <body>
   <div class="container">
     <div class="logo-container">
-      <img src="https://via.placeholder.com/200x80?text=Logo" alt="Logo">
+      <img src="https://via.placeholder.com/150x80?text=LOGO" alt="Logo da Igreja Itaquera Church" class="logo">
     </div>
 
     <h1>Catálogo de Empresas</h1>
 
+    <!-- Filtro por Segmento -->
     <div class="form-group">
       <label for="filtro-segmento">Filtrar por Segmento</label>
       <select id="filtro-segmento">
@@ -146,8 +156,10 @@
       </select>
     </div>
 
+    <!-- Lista de Empresas -->
     <div id="lista-empresas"></div>
 
+    <!-- Formulário de Cadastro -->
     <div class="form-cadastro">
       <h2>Cadastrar Nova Empresa</h2>
       <form id="form-empresa">
@@ -182,7 +194,6 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     const empresas = JSON.parse(localStorage.getItem('empresas')) || [];
 
@@ -190,27 +201,39 @@
       localStorage.setItem('empresas', JSON.stringify(empresas));
     }
 
-    function renderizarEmpresas(filtroSegmento = '') {
+    function gerarPDF(empresa) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(16);
+      doc.text(`Empresa: ${empresa.nome}`, 10, 20);
+      doc.setFontSize(12);
+      doc.text(`Telefone: ${empresa.telefone}`, 10, 30);
+      doc.text(`Segmento: ${empresa.segmento}`, 10, 40);
+      doc.save(`${empresa.nome}.pdf`);
+    }
+
+    function renderizarEmpresas(filtro = '') {
       const lista = document.getElementById('lista-empresas');
       lista.innerHTML = '';
 
       empresas
-        .filter(e => !filtroSegmento || e.segmento === filtroSegmento)
-        .forEach(({ nome, telefone, segmento, logoURL }) => {
-          const empresa = document.createElement('div');
-          empresa.className = 'empresa';
+        .filter(e => !filtro || e.segmento === filtro)
+        .forEach((empresa, index) => {
+          const div = document.createElement('div');
+          div.className = 'empresa';
 
-          empresa.innerHTML = `
-            <img src="${logoURL}" alt="Logo ${nome}" class="empresa-logo">
+          div.innerHTML = `
+            <img src="${empresa.logoURL}" alt="Logo ${empresa.nome}" class="empresa-logo">
             <div class="empresa-info">
-              <div class="empresa-nome">${nome}</div>
-              <div class="empresa-telefone">Telefone: ${telefone}</div>
-              <div class="empresa-segmento">Segmento: ${segmento}</div>
-              <button class="btn-pdf" onclick="gerarPDF('${nome}', '${telefone}', '${segmento}')">Gerar PDF</button>
+              <div class="empresa-nome">${empresa.nome}</div>
+              <div class="empresa-telefone">Telefone: ${empresa.telefone}</div>
+              <div class="empresa-segmento">Segmento: ${empresa.segmento}</div>
+              <button class="btn-pdf" onclick="gerarPDF(empresas[${index}])">Gerar PDF</button>
             </div>
           `;
 
-          lista.appendChild(empresa);
+          lista.appendChild(div);
         });
     }
 
@@ -225,10 +248,9 @@
       const logoInput = document.getElementById('logo');
       const telefone = document.getElementById('telefone').value;
       const segmento = document.getElementById('segmento').value;
-
       const novaEmpresa = { nome, telefone, segmento, logoURL: '' };
 
-      const salvarENovaRender = () => {
+      const salvarEAtualizar = () => {
         empresas.push(novaEmpresa);
         salvarEmpresas();
         renderizarEmpresas(document.getElementById('filtro-segmento').value);
@@ -240,29 +262,14 @@
         const reader = new FileReader();
         reader.onload = function (event) {
           novaEmpresa.logoURL = event.target.result;
-          salvarENovaRender();
+          salvarEAtualizar();
         };
         reader.readAsDataURL(logoInput.files[0]);
       } else {
-        novaEmpresa.logoURL = 'https://via.placeholder.com/80';
-        salvarENovaRender();
+        novaEmpresa.logoURL = "https://via.placeholder.com/80";
+        salvarEAtualizar();
       }
     });
-
-    async function gerarPDF(nome, telefone, segmento) {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-
-      doc.setFontSize(18);
-      doc.text('Informações da Empresa', 20, 20);
-
-      doc.setFontSize(12);
-      doc.text(`Nome: ${nome}`, 20, 40);
-      doc.text(`Telefone: ${telefone}`, 20, 50);
-      doc.text(`Segmento: ${segmento}`, 20, 60);
-
-      doc.save(`${nome}-dados.pdf`);
-    }
 
     renderizarEmpresas();
   </script>
