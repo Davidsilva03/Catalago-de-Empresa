@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catálogo de Empresas</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -28,6 +28,11 @@
     .logo-container {
       text-align: center;
       margin-bottom: 30px;
+    }
+
+    .logo-container img {
+      max-width: 200px;
+      height: auto;
     }
 
     h1, h2 {
@@ -65,7 +70,6 @@
       margin-bottom: 20px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       transition: transform 0.2s ease;
-      flex-wrap: wrap;
     }
 
     .empresa:hover {
@@ -83,7 +87,6 @@
 
     .empresa-info {
       flex-grow: 1;
-      min-width: 200px;
     }
 
     .empresa-nome {
@@ -104,7 +107,7 @@
       border-radius: 12px;
     }
 
-    button[type="submit"], .btn-pdf {
+    button[type="submit"] {
       background-color: #2ecc71;
       color: white;
       padding: 12px 20px;
@@ -113,10 +116,9 @@
       font-size: 16px;
       cursor: pointer;
       transition: background-color 0.3s ease;
-      margin-top: 10px;
     }
 
-    button[type="submit"]:hover, .btn-pdf:hover {
+    button[type="submit"]:hover {
       background-color: #27ae60;
     }
 
@@ -134,8 +136,10 @@
 </head>
 <body>
   <div class="container">
+
+    <!-- LOGO -->
     <div class="logo-container">
-      <img src="https://via.placeholder.com/150x80?text=LOGO" alt="Logo da Igreja Itaquera Church" class="logo">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABaAAAAGoCAYAAABYFgffAA..." alt="Logo da Igreja Itaquera Church" class="logo">
     </div>
 
     <h1>Catálogo de Empresas</h1>
@@ -157,7 +161,9 @@
     </div>
 
     <!-- Lista de Empresas -->
-    <div id="lista-empresas"></div>
+    <div id="lista-empresas">
+      <!-- Empresas serão inseridas aqui -->
+    </div>
 
     <!-- Formulário de Cadastro -->
     <div class="form-cadastro">
@@ -195,46 +201,56 @@
   </div>
 
   <script>
-    const empresas = JSON.parse(localStorage.getItem('empresas')) || [];
+    let empresas = JSON.parse(localStorage.getItem('empresas')) || [];
 
     function salvarEmpresas() {
       localStorage.setItem('empresas', JSON.stringify(empresas));
     }
 
-    function gerarPDF(empresa) {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-
-      doc.setFontSize(16);
-      doc.text(`Empresa: ${empresa.nome}`, 10, 20);
-      doc.setFontSize(12);
-      doc.text(`Telefone: ${empresa.telefone}`, 10, 30);
-      doc.text(`Segmento: ${empresa.segmento}`, 10, 40);
-      doc.save(`${empresa.nome}.pdf`);
-    }
-
-    function renderizarEmpresas(filtro = '') {
+    function renderizarEmpresas(filtroSegmento = '') {
       const lista = document.getElementById('lista-empresas');
       lista.innerHTML = '';
 
       empresas
-        .filter(e => !filtro || e.segmento === filtro)
-        .forEach((empresa, index) => {
-          const div = document.createElement('div');
-          div.className = 'empresa';
+        .filter(e => !filtroSegmento || e.segmento === filtroSegmento)
+        .forEach(({ nome, telefone, segmento, logoURL }) => {
+          const empresa = document.createElement('div');
+          empresa.className = 'empresa';
 
-          div.innerHTML = `
-            <img src="${empresa.logoURL}" alt="Logo ${empresa.nome}" class="empresa-logo">
+          empresa.innerHTML = `
+            <img src="${logoURL}" alt="Logo ${nome}" class="empresa-logo">
             <div class="empresa-info">
-              <div class="empresa-nome">${empresa.nome}</div>
-              <div class="empresa-telefone">Telefone: ${empresa.telefone}</div>
-              <div class="empresa-segmento">Segmento: ${empresa.segmento}</div>
-              <button class="btn-pdf" onclick="gerarPDF(empresas[${index}])">Gerar PDF</button>
+              <div class="empresa-nome">${nome}</div>
+              <div class="empresa-telefone">Telefone: ${telefone}</div>
+              <div class="empresa-segmento">Segmento: ${segmento}</div>
+              <button class="gerar-pdf">Gerar PDF</button>
             </div>
           `;
 
-          lista.appendChild(div);
+          empresa.querySelector('.gerar-pdf').addEventListener('click', function() {
+            gerarPDF(nome, telefone, segmento, logoURL);
+          });
+
+          lista.appendChild(empresa);
         });
+    }
+
+    function gerarPDF(nome, telefone, segmento, logoURL) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      doc.setFontSize(20);
+      doc.text('Catálogo de Empresas', 20, 20);
+      
+      doc.setFontSize(16);
+      doc.text(`Nome: ${nome}`, 20, 40);
+      doc.text(`Telefone: ${telefone}`, 20, 50);
+      doc.text(`Segmento: ${segmento}`, 20, 60);
+      
+      // Logo (usando a URL do logo)
+      doc.addImage(logoURL, 'JPEG', 20, 70, 50, 50);
+      
+      doc.save(`${nome}-empresa.pdf`);
     }
 
     document.getElementById('filtro-segmento').addEventListener('change', function () {
@@ -248,9 +264,10 @@
       const logoInput = document.getElementById('logo');
       const telefone = document.getElementById('telefone').value;
       const segmento = document.getElementById('segmento').value;
+
       const novaEmpresa = { nome, telefone, segmento, logoURL: '' };
 
-      const salvarEAtualizar = () => {
+      const salvarENovaRender = () => {
         empresas.push(novaEmpresa);
         salvarEmpresas();
         renderizarEmpresas(document.getElementById('filtro-segmento').value);
@@ -262,12 +279,12 @@
         const reader = new FileReader();
         reader.onload = function (event) {
           novaEmpresa.logoURL = event.target.result;
-          salvarEAtualizar();
+          salvarENovaRender();
         };
         reader.readAsDataURL(logoInput.files[0]);
       } else {
         novaEmpresa.logoURL = "https://via.placeholder.com/80";
-        salvarEAtualizar();
+        salvarENovaRender();
       }
     });
 
