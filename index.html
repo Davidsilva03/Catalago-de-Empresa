@@ -15,7 +15,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
     }
 
     .container {
@@ -95,8 +95,9 @@
       font-weight: 600;
     }
 
-    .empresa-telefone, .empresa-segmento {
+    .empresa-telefone, .empresa-segmento, .empresa-social, .empresa-site {
       color: #555;
+      margin-top: 4px;
     }
 
     .form-cadastro {
@@ -164,6 +165,14 @@
           <input type="tel" id="telefone" required>
         </div>
         <div class="form-group">
+          <label for="redeSocial">Rede Social (opcional)</label>
+          <input type="text" id="redeSocial" placeholder="Ex: https://instagram.com/empresa">
+        </div>
+        <div class="form-group">
+          <label for="site">Site (opcional)</label>
+          <input type="text" id="site" placeholder="Ex: https://www.empresa.com.br">
+        </div>
+        <div class="form-group">
           <label for="segmento">Segmento</label>
           <select id="segmento" required>
             <option value="">Selecione...</option>
@@ -196,7 +205,7 @@
 
       empresas
         .filter(e => !filtroSegmento || e.segmento === filtroSegmento)
-        .forEach(({ nome, telefone, segmento, logoURL }, index) => {
+        .forEach(({ nome, telefone, segmento, logoURL, redeSocial, site }, index) => {
           const empresa = document.createElement('div');
           empresa.className = 'empresa';
 
@@ -206,6 +215,8 @@
               <div class="empresa-nome">${nome}</div>
               <div class="empresa-telefone">Telefone: ${telefone}</div>
               <div class="empresa-segmento">Segmento: ${segmento}</div>
+              ${redeSocial ? `<div class="empresa-social">Rede Social: <a href="${redeSocial}" target="_blank">${redeSocial}</a></div>` : ''}
+              ${site ? `<div class="empresa-site">Site: <a href="${site}" target="_blank">${site}</a></div>` : ''}
               <div class="btn-acoes">
                 <button class="gerar-pdf btn-pequeno">Gerar PDF</button>
                 <button class="btn-excluir btn-pequeno" data-index="${index}">Excluir</button>
@@ -265,8 +276,10 @@
       const logoInput = document.getElementById('logo');
       const telefone = document.getElementById('telefone').value;
       const segmento = document.getElementById('segmento').value;
+      const redeSocial = document.getElementById('redeSocial').value;
+      const site = document.getElementById('site').value;
 
-      const novaEmpresa = { nome, telefone, segmento, logoURL: '' };
+      const novaEmpresa = { nome, telefone, segmento, logoURL: '', redeSocial, site };
 
       const salvarENovaRender = () => {
         empresas.push(novaEmpresa);
