@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Catálogo de Empresas</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -99,20 +99,6 @@
       color: #555;
     }
 
-    .btn-excluir {
-      background-color: red;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .btn-excluir:hover {
-      background-color: darkred;
-    }
-
     .form-cadastro {
       margin-top: 30px;
     }
@@ -120,22 +106,27 @@
     .form-cadastro h2 {
       margin-bottom: 15px;
     }
+
+    .btn-acoes {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn-pequeno {
+      font-size: 12px;
+      padding: 5px 8px;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="logo-container">
-      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABaAAAAGoCAYAAABYFgffAA..." alt="Logo da Empresa" class="logo">
+      <img src="https://via.placeholder.com/200x100?text=Logo" alt="Logo da Empresa" class="logo">
     </div>
 
     <h1>Catálogo de Empresas</h1>
-
-    <!-- Formulário de Senha -->
-    <div id="senha-container" style="margin-bottom: 20px;">
-      <label for="senha">Digite a senha para acessar a exclusão:</label>
-      <input type="password" id="senha" placeholder="Senha">
-      <button onclick="verificarSenha()">Acessar Exclusão</button>
-    </div>
 
     <!-- Filtro por Segmento -->
     <div class="form-group">
@@ -154,9 +145,7 @@
     </div>
 
     <!-- Lista de Empresas -->
-    <div id="lista-empresas">
-      <!-- Empresas serão inseridas aqui -->
-    </div>
+    <div id="lista-empresas"></div>
 
     <!-- Formulário de Cadastro -->
     <div class="form-cadastro">
@@ -195,19 +184,7 @@
 
   <script>
     let empresas = JSON.parse(localStorage.getItem('empresas')) || [];
-    let senhaCorreta = "123"; // Senha para autorizar exclusão
-    let autorizado = false;
-
-    function verificarSenha() {
-      const senha = document.getElementById('senha').value;
-      if (senha === senhaCorreta) {
-        autorizado = true;
-        document.getElementById('senha-container').style.display = 'none';
-        renderizarEmpresas(); // Renderizar as empresas após autenticação
-      } else {
-        alert("Senha incorreta! Você não tem permissão para excluir.");
-      }
-    }
+    const senhaCorreta = "123";
 
     function salvarEmpresas() {
       localStorage.setItem('empresas', JSON.stringify(empresas));
@@ -229,21 +206,26 @@
               <div class="empresa-nome">${nome}</div>
               <div class="empresa-telefone">Telefone: ${telefone}</div>
               <div class="empresa-segmento">Segmento: ${segmento}</div>
-              <button class="gerar-pdf">Gerar PDF</button>
-              ${autorizado ? `<button class="btn-excluir" data-index="${index}">Excluir</button>` : ''}
+              <div class="btn-acoes">
+                <button class="gerar-pdf btn-pequeno">Gerar PDF</button>
+                <button class="btn-excluir btn-pequeno" data-index="${index}">Excluir</button>
+              </div>
             </div>
           `;
 
-          empresa.querySelector('.gerar-pdf').addEventListener('click', function() {
+          empresa.querySelector('.gerar-pdf').addEventListener('click', function () {
             gerarPDF(nome, telefone, segmento, logoURL);
           });
 
-          if (autorizado) {
-            empresa.querySelector('.btn-excluir').addEventListener('click', function() {
+          empresa.querySelector('.btn-excluir').addEventListener('click', function () {
+            const senha = prompt("Digite a senha para excluir:");
+            if (senha === senhaCorreta) {
               const index = this.getAttribute('data-index');
               excluirEmpresa(index);
-            });
-          }
+            } else {
+              alert("Senha incorreta. Não foi possível excluir.");
+            }
+          });
 
           lista.appendChild(empresa);
         });
@@ -258,17 +240,17 @@
     function gerarPDF(nome, telefone, segmento, logoURL) {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      
+
       doc.setFontSize(20);
       doc.text('Catálogo de Empresas', 20, 20);
-      
+
       doc.setFontSize(16);
       doc.text(`Nome: ${nome}`, 20, 40);
       doc.text(`Telefone: ${telefone}`, 20, 50);
       doc.text(`Segmento: ${segmento}`, 20, 60);
-      
+
       doc.addImage(logoURL, 'JPEG', 20, 70, 50, 50);
-      
+
       doc.save(`${nome}-empresa.pdf`);
     }
 
