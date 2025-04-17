@@ -11,7 +11,8 @@
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f4f4f4;
+      background-color: #121212;
+      color: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -19,9 +20,9 @@
     }
 
     .container {
-      background-color: #fff;
+      background-color: #1e1e1e;
       border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       padding: 20px;
       width: 80%;
       max-width: 1000px;
@@ -36,9 +37,9 @@
       max-width: 200px;
     }
 
-    h1 {
+    h1, h2 {
       text-align: center;
-      color: #333;
+      color: #ffffff;
     }
 
     .form-group {
@@ -51,13 +52,15 @@
       font-weight: 600;
     }
 
-    input[type="text"], input[type="tel"], input[type="password"], select, button {
+    input[type="text"], input[type="tel"], input[type="url"], input[type="file"], select, button {
       width: 100%;
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 5px;
       font-size: 16px;
       margin-bottom: 10px;
+      background-color: #ffffff;
+      color: #000000;
     }
 
     button {
@@ -76,9 +79,9 @@
       display: flex;
       margin-bottom: 20px;
       padding: 15px;
-      background-color: #f9f9f9;
+      background-color: #2c2c2c;
       border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
     }
 
     .empresa-logo {
@@ -95,17 +98,12 @@
       font-weight: 600;
     }
 
-    .empresa-telefone, .empresa-segmento, .empresa-social, .empresa-site {
-      color: #555;
-      margin-top: 4px;
+    .empresa-telefone, .empresa-segmento, .empresa-site, .empresa-social {
+      color: #ccc;
     }
 
     .form-cadastro {
       margin-top: 30px;
-    }
-
-    .form-cadastro h2 {
-      margin-bottom: 15px;
     }
 
     .btn-acoes {
@@ -118,6 +116,14 @@
       font-size: 12px;
       padding: 5px 8px;
       border-radius: 4px;
+    }
+
+    .btn-excluir {
+      background-color: #dc3545 !important;
+    }
+
+    .btn-excluir:hover {
+      background-color: #b52a37 !important;
     }
   </style>
 </head>
@@ -165,14 +171,6 @@
           <input type="tel" id="telefone" required>
         </div>
         <div class="form-group">
-          <label for="redeSocial">Rede Social (opcional)</label>
-          <input type="text" id="redeSocial" placeholder="Ex: https://instagram.com/empresa">
-        </div>
-        <div class="form-group">
-          <label for="site">Site (opcional)</label>
-          <input type="text" id="site" placeholder="Ex: https://www.empresa.com.br">
-        </div>
-        <div class="form-group">
           <label for="segmento">Segmento</label>
           <select id="segmento" required>
             <option value="">Selecione...</option>
@@ -185,6 +183,14 @@
             <option value="Serviços">Serviços</option>
             <option value="Outro">Outro</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label for="site">Site (opcional)</label>
+          <input type="url" id="site">
+        </div>
+        <div class="form-group">
+          <label for="social">Rede Social (opcional)</label>
+          <input type="url" id="social">
         </div>
         <button type="submit">Cadastrar Empresa</button>
       </form>
@@ -205,7 +211,7 @@
 
       empresas
         .filter(e => !filtroSegmento || e.segmento === filtroSegmento)
-        .forEach(({ nome, telefone, segmento, logoURL, redeSocial, site }, index) => {
+        .forEach(({ nome, telefone, segmento, logoURL, site, social }, index) => {
           const empresa = document.createElement('div');
           empresa.className = 'empresa';
 
@@ -215,8 +221,8 @@
               <div class="empresa-nome">${nome}</div>
               <div class="empresa-telefone">Telefone: ${telefone}</div>
               <div class="empresa-segmento">Segmento: ${segmento}</div>
-              ${redeSocial ? `<div class="empresa-social">Rede Social: <a href="${redeSocial}" target="_blank">${redeSocial}</a></div>` : ''}
               ${site ? `<div class="empresa-site">Site: <a href="${site}" target="_blank">${site}</a></div>` : ''}
+              ${social ? `<div class="empresa-social">Rede Social: <a href="${social}" target="_blank">${social}</a></div>` : ''}
               <div class="btn-acoes">
                 <button class="gerar-pdf btn-pequeno">Gerar PDF</button>
                 <button class="btn-excluir btn-pequeno" data-index="${index}">Excluir</button>
@@ -276,10 +282,10 @@
       const logoInput = document.getElementById('logo');
       const telefone = document.getElementById('telefone').value;
       const segmento = document.getElementById('segmento').value;
-      const redeSocial = document.getElementById('redeSocial').value;
       const site = document.getElementById('site').value;
+      const social = document.getElementById('social').value;
 
-      const novaEmpresa = { nome, telefone, segmento, logoURL: '', redeSocial, site };
+      const novaEmpresa = { nome, telefone, segmento, site, social, logoURL: '' };
 
       const salvarENovaRender = () => {
         empresas.push(novaEmpresa);
